@@ -1,13 +1,13 @@
-am.trans                Transform replicated arrays into (A,M) format
-baseOlig.error          Evaluates LPE variance function of M for
-                        quantiles of A within each experimental
-                        condition
-fdr.adjust		Calls appropriate functions for FDR adjustment
-fixbounds.predict.smooth.spline
-                        Makes the predicted variance non-negative
-iqr                     Inter-quartile range
 Ley                     Gene Expression Data from Mouse Immune
                         response study, (2002)
+am.trans                Transform replicated arrays into (A,M) format
+baseOlig.error          Evaluates LPE variance function of M for
+                        quantiles of A within and experimental
+                        condition
+fdr.adjust              FDR adjustment procedures
+fixbounds.predict.smooth.spline
+                        Makes the predicted variance non negative
+iqr                     Inter-quartile range
 lpe                     Evaluates local pooled error significance test
 mt.rawp2adjp            Adjusted p-values for simple multiple testing
                         procedures
@@ -15,7 +15,6 @@ permute                 Calculating all possible permutations of a
                         vector
 preprocess              Preprocessing the data (IQR normalization,
                         thresholding, and log transformation)
-quan.norm		Finding quartile range (default is 50%)
-quartile.normalize	Normalization based on quartile range 
-resamp.adj		Does resampling based fdr adjustment based on rank
-			invariant genes
+quan.norm               Finding quartile range
+quartile.normalize      Normalization based on quartile range
+resamp.adj              Resampling based fdr adjustment

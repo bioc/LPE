@@ -11,7 +11,8 @@
 }
 
 \usage{
- fdr.adjust(lpe.result,adjp="resamp",target.fdr=0.05,iterations=5 )
+ fdr.adjust(lpe.result,adjp="resamp",target.fdr=c(10^-3,
+                 seq(0.01, 0.1, 0.01), 0.15, 0.2, 0.5),iterations=5 )
 }
 
 \arguments{

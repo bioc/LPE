@@ -10,7 +10,7 @@
 }
 
 \usage{
- resamp.adj(x,y, q=0.01, iterations=2) 
+ resamp.adj(x,y, q=0.01, iterations=5) 
 }
 
 \arguments{
