@@ -11,8 +11,7 @@
 }
 
 \usage{
- fdr.adjust(lpe.result,adjp="resamp",target.fdr=c(10^-3,
-                 seq(0.01, 0.1, 0.01), 0.15, 0.2, 0.5),iterations=5 )
+ fdr.adjust(lpe.result,adjp="resamp",target.fdr=c(10^-3 ,seq(0.01,0.10,0.01), 0.15, 0.20, 0.50),iterations=5,ALL=FALSE )
 }
 
 \arguments{
@@ -21,6 +20,8 @@
  \item{target.fdr}{Desired FDR level (used only for resampling
  	based adjustment)}
  \item{iterations}{Number of iterations for stable z-critical.}
+ \item{ALL}{If TRUE, the FDR corresponding to all the z-statistics, i.e.
+ 	for every gene intensity is given.}
 }
 
 
@@ -47,10 +48,11 @@
  # Gives 12488*7 
  # First column is ID.
 
-  Ley[,2:7] <- preprocess(Ley[,2:7],data.type="MAS5")
+ Ley[,2:7] <- preprocess(Ley[,2:7],data.type="MAS5")
 
  # Subsetting the data
  subset.Ley <- Ley[1:1000,]
+  
    
  # Finding the baseline distribution of condition 1 and 2.
  var.1 <- baseOlig.error(subset.Ley[,2:4], q=0.01)
@@ -61,7 +63,7 @@
                 probe.set.name=subset.Ley[,1])
 
 
- final.result <- fdr.adjust(lpe.result, adjp="resamp", iterations=2)
+ final.result <- fdr.adjust(lpe.result, adjp="resamp", target.fdr=c(0.01,0.05), iterations=1)
 
 }
 

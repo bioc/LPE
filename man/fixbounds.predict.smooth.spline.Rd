@@ -45,11 +45,12 @@ fixbounds.predict.smooth.spline(object,x, deriv=0)
  # Gives 12488*7 
  # First column is ID.
 
-  Ley[,2:7] <- preprocess(Ley[,2:7],data.type="MAS5")
-  # preprocess the data
 
  # Subsetting the data
  subset.Ley <- Ley[1:1000,]
+  
+  subset.Ley[,2:7] <- preprocess(subset.Ley[,2:7],data.type="MAS5")
+  # preprocess the data
   
  # Finding the baseline distribution of condition 1 and 2.
  var.1 <- baseOlig.error(subset.Ley[,2:4], q=0.01)

@@ -43,7 +43,8 @@ Returns the normalized data based on quartile normalization
  # Gives 12488*7
  # First column is ID.
 
-  Ley[,2:7] <- quartile.normalize(Ley[,2:7],percent=50)
+  subset <- 1:1000
+  Ley[subset,2:7] <- quartile.normalize(Ley[subset,2:7],percent=50)
 
 
 }

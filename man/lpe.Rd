@@ -61,13 +61,15 @@ issues i.e. variability of genes with low expression intensity.
  # Gives 12488*7 
  # First column is ID.
 
-  Ley[,2:7] <- preprocess(Ley[,2:7],data.type="MAS5")
 
 
  # Subsetting the data
  subset.Ley <- Ley[1:1000,]
   
+  subset.Ley[,2:7] <- preprocess(subset.Ley[,2:7],data.type="MAS5")
+  
  # Finding the baseline distribution of condition 1 and 2.
+var.11 <- baseOlig.error.step1(subset.Ley[,2:4]) 
  var.1 <- baseOlig.error(subset.Ley[,2:4], q=0.01)
  var.2 <- baseOlig.error(subset.Ley[,5:7], q=0.01)
  

@@ -10,7 +10,7 @@
 }
 
 \usage{
- resamp.adj(x,y, q=0.01, iterations=5) 
+ resamp.adj(x,y, q=0.01, iterations=5, min.genes.int=10) 
 }
 
 \arguments{
@@ -20,6 +20,7 @@
 			or data-frame)}.
  \item{q}{q is the quantile width; q=0.01 corresponds to 100 quantiles}.
  \item{iterations}{Number of iterations to be performed to obtain critical z-statistics}.
+ \item{min.genes.int}{Determines the minimum number of genes in a subinterval for selecting the adaptive intervals.}
 }
 
 \details{
@@ -48,13 +49,22 @@
  # Gives 12488*7 
  # First column is ID.
 
-  Ley[,2:7] <- preprocess(Ley[,2:7],data.type="MAS5")
-
-
  # Subsetting the data
  subset.Ley <- Ley[1:1000,]
   
- z.stats.null <- resamp.adj(subset.Ley[,2:4], subset.Ley[,5:7], q=0.01, iterations=2 )
+  subset.Ley[,2:7] <- preprocess(subset.Ley[,2:7],data.type="MAS5")
+   
+ # Finding the baseline distribution of condition 1 and 2.
+ var.1 <- baseOlig.error(subset.Ley[,2:4], q=0.01)
+ var.2 <- baseOlig.error(subset.Ley[,5:7], q=0.01)
+ 
+ # Applying LPE
+ lpe.result <- lpe(subset.Ley[,2:4],subset.Ley[,5:7], var.1, var.2,
+		probe.set.name=subset.Ley[,1])
+  
+
+ 
+ z.stats.null <- resamp.adj(subset.Ley[,2:4], subset.Ley[,5:7], q=0.01, iterations=2,min.genes.int=10 )
 
 }
 

@@ -1,3 +1,25 @@
+
+######################################
+##
+## Local Pooled Error (LPE) test for microarray data with
+## a small number of replicates.
+##
+######################################
+
+
+#.First.lib <- function(lib, pkg) {
+#  #cat("LPE library by Nitin Jain, Michael O'Connell and Jae K. Lee\n") 
+#  cat("Version 1.1.2 (2003-10-29)\n") 
+#  library.dynam("LPE", pkg, lib)
+#  invisible()
+#
+#if(.Platform$OS.type=="windows" && require(Biobase) && interactive() && .Platform$GUI=="Rgui"){
+#   addPDF2Vig("LPE")
+#}
+#
+#}
+
+
 permute <- function (a) {
   aa <- matrix(NA, length(a)-1, length(a))
   for (i in 1:(length(a)-1)) {
@@ -84,26 +106,51 @@ quartile.normalize <- function(x,percent=50) {
 # The above functions are generalized form of iqr function (below) 
 iqr <- function(x) diff(quantile(x,c(0.25,0.75),na.rm=TRUE))
 
-preprocess <- function(x, data.type = "MAS5") {
+# Lowess normalization
+lowess.normalize <- function(x,y)
+{
+   # x = log(cy3 or chip1) and y = log(cy5 or chip2)
+   na.point <- (1:length(x))[!is.na(x) & !is.na(y)]
+   x <- x[na.point]; y <- y[na.point] 
+   fit <- lowess(x+y, y-x)
+
+   diff.fit <- approx(fit$x,fit$y,x+y,ties=mean)
+   out <- y - diff.fit$y
+   return(out)  
+}
+
+
+
+preprocess <- function(x, data.type = "MAS5", threshold=1,LOWESS=TRUE) {
+  
+  # Removing NA values
   x <- as.matrix(na.exclude(x))
+  
+  # IQR normalization
   if (data.type =="MAS4" || data.type == "MAS5") {
-    x <- quartile.normalize(x, percent=50)
-    #adj <- matrix(rep(apply(x,2,iqr)/max(apply(x,2,iqr)),
-    #			nrow(x)),nrow=nrow(x), byrow=TRUE)
-    #x <- data.frame(x/adj)
-    #rm(adj)
+    x <- quartile.normalize(x, percent=50) 
   }
-  if (data.type == "MAS4" || data.type == "dChip") {
-    if (length(x[x<1]) !=0) {
-      x[x<1] <- 1 
+
+  # Thresholding to 'threshold' (default = 1)
+  if (data.type == "MAS4" || data.type =="MAS5"|| data.type == "dChip") {
+    if (length(x[x<threshold]) !=0) {
+      x[x<threshold] <- threshold 
     }
   } 
-  if (data.type == "MAS5") {
-    if (length(x[x <0.1]) !=0) {
-      x[x < 0.1] <- 0.1 
-    }
-  }
+
+  # Log based 2 transformation
   x <- logb(x,2)
+
+  # Loess normalization of all the chips w.r.t. first one
+  if (LOWESS) {
+  y <- matrix(NA, nrow=nrow(x), ncol=ncol(x))
+  y[,1] <- x[,1]
+    for (i in 2:ncol(x)) {
+      y[,i] <- lowess.normalize(x[,1],x[,i])
+    }
+  x <- y
+  }
+return(x) 
 }
 
 # Above function preprocesses the data from MAS4/5 and dchip.
@@ -112,12 +159,52 @@ preprocess <- function(x, data.type = "MAS5") {
 # at 1 and for MAS5 data, thresholding is applied at 0.1
 # Finally, the data is log transformed to the base 2. 
 
-baseOlig.error <- function(y, q = 0.01) {
+n.genes.adaptive.int <- function(baseOlig.error.step1.res, 
+	min.genes.int = 10, div.factor =1){
+ # a) min # genes in each interval = 10
+  # b) max # genes in each interval = (total genes)/100
+  # c) genes are chosen s.t. they are within [median + fraction(S.D.)] from
+  #	the starting gene of each interval, if above coonditions are met.
+  
+  y <- baseOlig.error.step1.res
+  max.genes.int <- round(nrow(y)/100, digits=0)
+  genes.sub.int <- c()
+  i <- 1  
+  
+  while(i < nrow(y)){
+    temp.median <- y[i,1]
+    temp.sd <- sqrt(y[i,2])/div.factor
+    n.genes.int <- length(which(y[,1] <= temp.median + temp.sd))-(i-1)
+    if (n.genes.int < min.genes.int) n.genes.int <- min.genes.int
+    if (n.genes.int > max.genes.int) n.genes.int <- max.genes.int
+    genes.sub.int <- c(genes.sub.int,n.genes.int)
+   i <- i+n.genes.int
+  } 
+  
+  # Checking if "extra" genes have been assigned to the last interval  
+  if(sum(genes.sub.int)!=nrow(y)){
+    len.temp <- length(genes.sub.int)
+    temp1 <- genes.sub.int[1:(len.temp-1)]
+    extra.genes <- nrow(y)-sum(temp1) 
+    temp1[len.temp-1] <- temp1[len.temp-1] + extra.genes
+    genes.sub.int <- temp1
+    rm(temp1,len.temp,extra.genes)
+  }
+  
+ return(genes.sub.int)
+
+}
+
+
+baseOlig.error.step1 <- function(y, stats=median, q=0.01, df=10) {
 
   AM <- am.trans(y)
   A <- AM[, 1]
   M <- AM[, 2]
+  median.y <- apply(y,1,stats)
 	
+  ## baseline is calculated in two steps
+  ## In the 1st step, total number os subintervals are chosen to be 100.
   quantile.A <- quantile(A, probs = seq(0, 1, q), na.rm = TRUE)
   quan.n <- length(quantile.A) - 1
   var.M <- rep(NA, length = quan.n)
@@ -138,8 +225,74 @@ baseOlig.error <- function(y, q = 0.01) {
     var.M[i - 1] <- mult.factor * var(M[A > quantile.A[i - 1] & A <= quantile.A[i]], na.rm=TRUE) 
     medianAs[i - 1] <- median(A[A > quantile.A[i - 1] & A <= quantile.A[i]], na.rm = TRUE)
   }
-  return(cbind(A = medianAs, var.M = var.M))
+  var.M[1:which(var.M==max(var.M))] <- max(var.M)
+  
+  base.var <- cbind(A = medianAs, var.M = var.M)
+  sm.spline <- smooth.spline(base.var[, 1], base.var[, 2], df = df)
+  var.genes <- fixbounds.predict.smooth.spline(sm.spline, median.y)$y
+  basevar.step1 <- cbind(A = median.y, var.M = var.genes)
+  
+  ord.median <- order(basevar.step1[,1])
+  var.genes.ord <- basevar.step1[ord.median,]
+  
+  ## END of step 1 of basline caculation
+  ## Here number of sub-intervals were assumed to be 100
+  
+  return(var.genes.ord)
+
 }
+
+baseOlig.error.step2 <- function(y, baseOlig.error.step1.res, df=10, stats=median, min.genes.int=10, div.factor=1) {
+ AM <- am.trans(y)
+  A <- AM[, 1]
+  M <- AM[, 2]
+  median.y <- apply(y,1,stats)
+
+var.genes.ord <- baseOlig.error.step1.res	
+genes.sub.int <- n.genes.adaptive.int(var.genes.ord,min.genes.int=min.genes.int, div.factor=div.factor)
+
+  ## Re-calculating the baseline distribution based on new adaptive intervals
+
+  j.start <- 1
+  j.end <- 0
+  var.M.adap <- rep(NA, length = length(genes.sub.int))
+  medianAs.adap <- rep(NA, length = length(genes.sub.int))
+    
+  for (i in 2:(length(genes.sub.int)+1)) {
+        j.start <- j.end + 1
+        j.end <- j.start+genes.sub.int[i-1]-1
+	
+	vect.temp <- (A > var.genes.ord[j.start,1] & 
+			A <= var.genes.ord[j.end,1])
+	n.i <- length(!is.na(M[vect.temp]))
+        mult.factor <- 0.5 * ((n.i - 0.5)/(n.i - 1))
+        var.M.adap[i - 1] <- mult.factor * var(M[vect.temp], na.rm = TRUE)
+        medianAs.adap[i - 1] <- median(A[vect.temp], na.rm = TRUE)
+  }
+
+  var.M.adap[1:which(var.M.adap == max(var.M.adap))] <- max(var.M.adap)
+
+  base.var.adap <- cbind(A.adap = medianAs.adap, var.M.adap = var.M.adap)
+  sm.spline.adap <- smooth.spline(base.var.adap[, 1], base.var.adap[, 2], df = df)
+  var.genes.adap <- fixbounds.predict.smooth.spline(sm.spline.adap, median.y)$y
+  basevar.all.adap <- cbind(A = median.y, var.M = var.genes.adap)
+  
+ return(basevar.all.adap)
+
+#  return(cbind(A = medianAs, var.M = var.M))
+}
+
+ 
+
+baseOlig.error <- function(y, stats=median, q = 0.01, min.genes.int =10, div.factor=1) {
+ # Calls baseOlig.error.step1 and baseOlig.error.step2 functions
+ 
+ baseline.step1 <- baseOlig.error.step1(y, stats=stats)
+ baseline.step2 <- baseOlig.error.step2(y, stats=stats, baseline.step1, min.genes.int=min.genes.int, div.factor=div.factor)
+ return(baseline.step2) 
+  
+}
+
 # The above function evaluates baseline distribution of M at percentile intervals of A.
 # y is (log transformed intensity) of replicated Oligo arrays after normalization and
 # q = quantile width 
@@ -154,21 +307,21 @@ lpe <- function(x, y, basevar.x, basevar.y, df = 10, array.type = "olig",
   # array.type: "olig" for Affymetrix oligo array and "cDNA" for cDNA array
   # subset rows, removing rows with any na's
 
-  trim.size <- round((trim.percent/100) * nrow(basevar.x), digits=0)
-  basevar.x <- basevar.x[(trim.size + 1): nrow(basevar.x),  ]
-  basevar.y <- basevar.y[(trim.size + 1): nrow(basevar.y),  ]
-  express.df <- cbind(x, y)
-  express.df <- na.exclude(express.df)
+  # trim.size <- round((trim.percent/100) * nrow(basevar.x), digits=0)
+  # basevar.x <- basevar.x[(trim.size + 1): nrow(basevar.x),  ]
+  # basevar.y <- basevar.y[(trim.size + 1): nrow(basevar.y),  ]
+  # express.df <- cbind(x, y)
+  # express.df <- na.exclude(express.df)
 
-  x <- as.matrix(express.df[, 1:ncol(x)])
-  y <- as.matrix(express.df[, (ncol(x) + 1):ncol(express.df)] )
+  # x <- as.matrix(express.df[, 1:ncol(x)])
+  # y <- as.matrix(express.df[, (ncol(x) + 1):ncol(express.df)] )
 
   # If some rows containing NAs were removed then, remove corresponding IDs too
 
-  pickoff <- attr(express.df, "na.action")
-  if(!is.null(pickoff)) {
-    probe.set.name <- probe.set.name[-pickoff]
-  }
+  # pickoff <- attr(express.df, "na.action")
+  # if(!is.null(pickoff)) {
+  #   probe.set.name <- probe.set.name[-pickoff]
+  # }
  
   n1 <- ncol(x)
   n2 <- ncol(y)
@@ -178,13 +331,18 @@ lpe <- function(x, y, basevar.x, basevar.y, df = 10, array.type = "olig",
     stop("No replicated arrays!")
   }
   if (n1 > 2 |n2 >2){
-    median.x <- apply(x, 1, median)
-    median.y <- apply(y, 1, median)
+    # median.x <- apply(x, 1, median)
+    # median.y <- apply(y, 1, median)
+    # sf.x <- smooth.spline(basevar.x[, 1], basevar.x[, 2], df = df)
+    # var.x <- fixbounds.predict.smooth.spline(sf.x, median.x)$y
+    # sf.y <- smooth.spline(basevar.y[, 1], basevar.y[, 2], df = df)
+    # var.y <- fixbounds.predict.smooth.spline(sf.y, median.y)$y
+    var.x <- basevar.x[,2]
+    var.y <- basevar.y[,2]
+    median.x <- basevar.x[,1]
+    median.y <- basevar.y[,1]
     median.diff <- median.x - median.y
-    sf.x <- smooth.spline(basevar.x[, 1], basevar.x[, 2], df = df)
-    var.x <- fixbounds.predict.smooth.spline(sf.x, median.x)$y
-    sf.y <- smooth.spline(basevar.y[, 1], basevar.y[, 2], df = df)
-    var.y <- fixbounds.predict.smooth.spline(sf.y, median.y)$y
+
     std.dev <- sqrt(1.57 * ((var.x/n1) + (var.y/n2)))
     z.stats <- median.diff/std.dev
     
@@ -197,14 +355,18 @@ lpe <- function(x, y, basevar.x, basevar.y, df = 10, array.type = "olig",
     return(data.out)
   } 
   if (n1 ==2 & n2 ==2) {
-    median.x <- (x[, 1] + x[, 2])/2
-    median.y <- (y[, 1] + y[, 2])/2
+    # median.x <- (x[, 1] + x[, 2])/2
+    # median.y <- (y[, 1] + y[, 2])/2
+    
+    # sf.x <- smooth.spline(basevar.x[, 1], basevar.x[, 2], df = df)
+    # var.x <- fixbounds.predict.smooth.spline(sf.x, median.x)$y
+    # sf.y <- smooth.spline(basevar.y[, 1], basevar.y[, 2], df = df)
+    # var.y <- fixbounds.predict.smooth.spline(sf.y, median.y)$y
+    var.x <- basevar.x[,2]
+    var.y <- basevar.y[,2]
+    median.x <- basevar.x[,1]
+    median.y <- basevar.y[,1]
     median.diff <- median.x- median.y
-
-    sf.x <- smooth.spline(basevar.x[, 1], basevar.x[, 2], df = df)
-    var.x <- fixbounds.predict.smooth.spline(sf.x, median.x)$y
-    sf.y <- smooth.spline(basevar.y[, 1], basevar.y[, 2], df = df)
-    var.y <- fixbounds.predict.smooth.spline(sf.y, median.y)$y
 
     std.dev <- sqrt((var.x/n1) + (var.y/n2))
     z.stats <- median.diff/std.dev
@@ -253,152 +415,263 @@ lpe <- function(x, y, basevar.x, basevar.y, df = 10, array.type = "olig",
 }
 
 ### NEW FUNCTION
-fdr.adjust <- function(lpe.result,adjp="resamp",target.fdr=c(10^-3 ,seq(0.01,0.10,0.01), 0.15, 0.20, 0.50), iterations=5){
-    
+fdr.adjust <- function(lpe.result,adjp="resamp",target.fdr=c(10^-3 ,seq(0.01,0.10,0.01), 0.15, 0.20, 0.50), iterations=5, ALL=FALSE){
+
 if(adjp=="resamp"){
     x.location <- grep("^x",names(lpe.result))
     y.location <- grep("^y",names(lpe.result))
     x <- lpe.result[,x.location]
     y <- lpe.result[,y.location]
-    z.null.iterations <- resamp.adj(x,y, q=0.01, iterations=iterations)
+
+    z.null.resamp <- resamp.adj(x, y, q=0.01, iterations=iterations)
+    z.null.iterations <- abs(z.null.resamp)
 
     num.genes <- nrow(x)
     # Computing FDR for all z-values
     z.real <- sort(abs(lpe.result$z.stats), decreasing = TRUE)
     num.all <-  length(z.null.iterations)
-    FDR <- c(NA, num.genes)
-    cat("Computing FDR...\n")
+
+    min.fdr <- 1.0/num.all
+#   pi0 <- length(which(z.real <= median(z.null.iterations)))/(length(z.real)/2.0)
+    pi0 <- length(which(z.real <= quantile(z.null.iterations,0.90)))/
+		 (length(z.real)*0.9)
+
+    pi0 <- min(1,pi0)
+
+      FDR <- rep(NA, num.genes)
+      cat("Computing FDR...\n")
+      n.col.iterations <-  ncol(z.null.iterations)
+     
     for (i in 1:num.genes) {
-      false.pos <- (1:num.all)[z.null.iterations >= z.real[i]]
-      n.false.pos <- length(false.pos)
-      avg.n.false.pos <- n.false.pos/ncol(z.null.iterations)
-      true.pos <- (1:length(z.real))[z.real >= z.real[i]]
-      n.true.pos <- length(true.pos)
-      FDR[i] <- avg.n.false.pos/n.true.pos
-      FDR[i] <- min(FDR[i], 1)
-    }
-   
-    # Computing FDR for only desired values (target.fdr)
-    z.critical <- c(NA, length(target.fdr))
-    for (j in 1:length(target.fdr)) {
-      temp <- (target.fdr[j] >= FDR)
-      genes.signif <- (1:num.genes)[temp]
-      num.genes.signif <- length(genes.signif)
-      z.critical[j] <- z.real[num.genes.signif]
+      n.false.pos <- length(which(z.null.iterations >= z.real[i]))
+      avg.n.false.pos <- n.false.pos/n.col.iterations 
+      n.total.pos <- length(which(z.real >= z.real[i]))
+      temp <- avg.n.false.pos/n.total.pos
+      FDR[i] <- max(min(pi0*temp, 1),min.fdr)
     }
 
-    data.out <- cbind(target.fdr,z.critical)
-     
-    } else if(adjp!="resamp"){
+     for (j in num.genes:1) {
+      FDR[j] <- min(FDR[j:num.genes]) # enforcing monotonicity
+    }
+   
+    if(!ALL) {
+      # Computing FDR for only desired values (target.fdr)
+      z.critical <- rep(NA, length(target.fdr))
+      for (j in 1:length(target.fdr)) {
+        temp <- (target.fdr[j] >= FDR)
+        genes.signif <- (1:num.genes)[temp]
+        num.genes.signif <- length(genes.signif)
+        z.critical[j] <- z.real[num.genes.signif]
+      }  # end of ' for j in target.fdr..' loop
+      data.out <- cbind(target.fdr,z.critical)
+      } else { # end of 'if(!ALL..' loop
+        data.out <- cbind(FDR,z.real)
+      } # end of else loop
+
+      return(data.out)
+    }  # end of 'adjp==resamp' loop
+    
+   if (adjp == "BH" || adjp=="BY") {
       x.location <- grep("^x",names(lpe.result))
       y.location <- grep("^y",names(lpe.result))
       x <- lpe.result[,x.location]
       y <- lpe.result[,y.location]
-
-      pnorm.diff <- pnorm(lpe.result$median.diff, mean = 0, sd = lpe.result$pooled.std.dev)
+      pnorm.diff <- pnorm(lpe.result$median.diff, mean = 0, 
+	  sd = lpe.result$pooled.std.dev)
       p.out <- 2 * apply(cbind(pnorm.diff, 1 - pnorm.diff), 1, min)
       p.adj <- mt.rawp2adjp(p.out, proc=adjp)
-      data.out <- data.frame(x=x, median.1 = lpe.result$median.1, std.dev.1 = 
-		lpe.result$std.dev.1, y=y, median.2 = lpe.result$median.2,
-		std.dev.2 = lpe.result$std.dev.2, median.diff = 
-		lpe.result$median.diff, pooled.std.dev=
-		lpe.result$pooled.std.dev,abs.z.stats=abs(lpe.result$z.stats),
-    		p.adj=p.adj)
-    }
-}
+      data.out <- data.frame(x=x, median.1 = lpe.result$median.1, 
+		std.dev.1 = lpe.result$std.dev.1, y=y, 
+		median.2 = lpe.result$median.2,
+		std.dev.2 = lpe.result$std.dev.2, 
+		median.diff = lpe.result$median.diff, 
+		pooled.std.dev= lpe.result$pooled.std.dev,
+		abs.z.stats=abs(lpe.result$z.stats),p.adj=p.adj)
+        col.id <- grep(adjp, colnames(data.out))
+ 	aa <- cbind(FDR=data.out[,col.id],
+		 z.real=data.out$abs.z.stats)
+	aa <- aa[order(aa[,2],decreasing=TRUE),]
+       return(aa)
+    } # End of adjp=="BH" || adjp=="BY"
+
+if (adjp == "mix.all") { # this is like SAM strategy
+      x.location <- grep("^x", names(lpe.result))
+      y.location <- grep("^y", names(lpe.result))
+      x <- lpe.result[, x.location]
+      y <- lpe.result[, y.location]
+      orig.data <- as.matrix(cbind(x,y))
+      # Sampling all genes to generate NULL data
+      z.stats.null <- matrix(NA,nrow(x), ncol=iterations)
+      for (m in 1:iterations) {
+        null.data <- matrix(sample(orig.data), nrow=nrow(orig.data),
+			ncol=ncol(orig.data))
+        basevar.x.null <- baseOlig.error(null.data[, 1:ncol(x)])
+        basevar.y.null <- baseOlig.error(null.data[, (1 + ncol(x)):(ncol(x) + 
+            ncol(y))])
+        lpe.null <- lpe(null.data[, 1:ncol(x)], null.data[, (1 + 
+            ncol(x)):(ncol(x) + ncol(y))], basevar.x.null, 
+	    basevar.y.null, probe.set.name = as.character(1:nrow(x)))
+        z.stats.null[,m] <- (lpe.null$z.stats)
+        cat("iteration number",m," finished \n")
+      }
+      
+      z.stats.null.abs <- abs(z.stats.null)
+      z.real <- sort(abs(lpe.result$z.stats), decreasing = TRUE)
+      num.all <- length(z.stats.null) # the number of genes in null
+      z.null.iterations <- z.stats.null.abs
+
+     min.fdr <- 1/num.all
+#     pi0 <- length(which(z.real <= median(z.null.iterations)))/(length(z.real)/2)
+ pi0 <- length(which(z.real <= quantile(z.null.iterations,0.90)))/(length(z.real)*0.9)    
+        pi0 <- min(1, pi0)
+        num.genes <- length(z.real)
+
+        FDR <- rep(NA, num.genes)
+        cat("Computing FDR...\n")
+        n.col.iterations <-  ncol(z.null.iterations)
+
+        for (i in 1:num.genes) {
+          n.false.pos <- length(which(z.null.iterations >= z.real[i]))
+          avg.n.false.pos <- n.false.pos/n.col.iterations 
+          n.total.pos <- length(which(z.real >= z.real[i]))
+          temp <- avg.n.false.pos/n.total.pos
+          FDR[i] <- max(min(pi0 * temp, 1), min.fdr)
+          FDR[i] <- max(FDR[1:i]) # enforcing monotonicity
+        } # end of 'for i in num.genes..' loop
+
+        if (!ALL) {
+            z.critical <- rep(NA, length(target.fdr))
+            for (j in 1:length(target.fdr)) {
+                temp <- (target.fdr[j] >= FDR)
+                genes.signif <- (1:num.genes)[temp]
+                num.genes.signif <- length(genes.signif)
+                z.critical[j] <- z.real[num.genes.signif]
+            }
+            data.out <- cbind(target.fdr, z.critical)
+        } else { # end of 'if(!ALL..'
+          data.out <- cbind(FDR, z.real)
+        } # end of 'else ..'
+       return(data.out)
+     } # END mix.all
+} # END fdr.adjust
 
         
 
 ######################
-resamp.adj <- function(x, y, q=0.01, iterations=5) {
+resamp.adj <- function(x, y, q=0.01, iterations=5, min.genes.int=10) {
  median.x <- apply(x,1,median)
  rank.x <- rank(median.x)
  median.y <- apply(y,1,median)
  rank.y <- rank(median.y)
- diff.rank <- abs(rank.x-rank.y)/length(rank.x)
+ diff.rank <- abs(rank.x-rank.y)
 
  # finding overall median of genes across all conditions
- median.all <- apply(cbind(x,y),1, median) 
+ data.all <- cbind(x,y)
+ median.all <- apply(data.all,1, median) 
  data.median <- cbind(median.all, diff.rank)
  # sorting the median data
  data.median.ord <- data.median[order(median.all),]
+
  # Finding the quantiles of overall median
- q.all <- quantile(median.all, probs=seq(0,1,q))
- n.gene <- nrow(x)
+ #q.all <- quantile(median.all, probs=seq(0,1,q))
+ #n.gene <- nrow(x)
  
- 
- # finding the 50% rank-invariant genes from each quantile
- intervals <- as.integer(1/q)
- invar.genes.all <- c()
- for (i in 1:intervals) {
-   temp <- (data.median.ord[,1] >= q.all[i]) & (data.median.ord[,1] < q.all[i+1])
-   data.interval <- data.median.ord[temp,]
-   len.interval <- round(0.5*nrow(data.interval),digits=0)
-   rank.diff.interval <- order(data.interval[, 2])
-   invar.genes.interval <- rank.diff.interval[1:len.interval]
-   invar.genes.all <- c(invar.genes.all, data.interval[invar.genes.interval,1])
-}
+ # Finding the baseline of overall data
+ baseline.all.step1 <- baseOlig.error.step1(data.all)
 
- # finding the order of invariant genes
- genes.invar <- (1:nrow(x))[row.names(x)%in%names(invar.genes.all)]
- n.genes.invar <- length(genes.invar)
- 
- orig.data <- data.frame(x,y)
- invar.data <- orig.data[genes.invar,]
- median.new.x <- median.x[genes.invar]
- median.new.y <- median.y[genes.invar]
- 
- # finding the quantiles of rank-invariant gene medians
- quantile.x <- quantile(median.new.x, probs=seq(0.00,1,q))
- quantile.y <- quantile(median.new.y, probs=seq(0.00,1,q))
+ ## Obtain the number of intervals (like in step 2 of baseOlig.error function
 
- z.stats.null.iterations <- matrix(NA, nrow=nrow(x), ncol=iterations)
+  genes.sub.int <- n.genes.adaptive.int(baseline.all.step1, 
+      min.genes.int = min.genes.int, div.factor = 1)
+
+   n.genes.invar.int <- paste("n.genes.invar.int", 1:length(genes.sub.int), 
+        sep = "")
+    invar.genes.all <- c()
+    keep.insig.genes <- 0.90
+   
+ start <- 1
+    for (i in 1:length(genes.sub.int)) {
+        temp1 <- genes.sub.int[i]
+        temp <- start:(start + temp1 - 1)
+        data.interval <- data.median.ord[temp, ]
+        len.invar.genes <- round(keep.insig.genes* nrow(data.interval),
+		 digits = 0)
+        assign(n.genes.invar.int[i], len.invar.genes)
+        rank.diff.interval <- order(data.interval[, 2])
+        invar.genes.interval <- rank.diff.interval[1:len.invar.genes]
+        invar.genes.all <- c(invar.genes.all, data.interval[invar.genes.interval, 
+            1])
+        start <- start + temp1
+    } # end of 'for (i in... ' loop 
+
+  genes.invar <- (1:nrow(x))[row.names(x) %in% names(invar.genes.all)]
+    n.genes.total <- nrow(x)
+   
+    n.genes.invar <- length(genes.invar)
+    orig.data <- data.frame(x, y)
+   
+ invar.data <- orig.data[genes.invar, ]
+    invar.median <- apply(invar.data, 1, median)
+    invar.median.order <- order(invar.median)
+    invar.data.ord <- invar.data[invar.median.order, ]
+    null.data <- data.frame(matrix(NA, nrow = n.genes.total, 
+        ncol = (ncol(x) + ncol(y))))
+    
+ intervals <- length(genes.sub.int)
+    genes.sub.int.invar <- c()
+    for (i in 1:intervals) {
+        genes.sub.int.invar <- c(genes.sub.int.invar, (get(n.genes.invar.int[i])))
+    }
+
+    # sum(genes.sub.int.invar)
+    z.stats.null.iterations <- matrix(NA, nrow = nrow(x), ncol = iterations)
+
  for (m in 1:iterations) {
    cat("iteration number", m, "is in progress\n")
-   pooled.data <- paste("pooled.data",1:intervals,sep="")
 
-   # Pooling the quantiles of invariant genes 
-   for (i in 1:intervals) {
-     temp1 <- (1:n.genes.invar)[((median.new.x > quantile.x[i]) &
-                   (median.new.x <= quantile.x[i+1]))]
-     	
-     temp2 <- (1:n.genes.invar)[((median.new.y > quantile.y[i]) &
-     	           (median.new.y <= quantile.y[i+1]))]
-     
-     pool.ref <- as.vector(as.matrix(invar.data[temp1,1:ncol(x)]))
-     pool.targ <- as.vector(as.matrix(invar.data[temp2,((1+ncol(x)):(ncol(x)+ncol(y)))]))
-     
-     assign(pooled.data[i], c(pool.ref,pool.targ))
-   }
-   # Above loop assigns pooled quantiles in pooled.data
+### Generating null distribution 
+   start <- 1 # genes in interval
+   start1 <- 1 # invar genes
+   finish <- genes.sub.int[1] # num. of all genes
+   finish1 <- genes.sub.int.invar[1] # num. of invar.genes
+   new.intervals <- length(genes.sub.int.invar)
 
-   # Generating the 'NULL' distribution:
-   null.data <- matrix(NA, nrow=nrow(x), ncol=(ncol(x)+ ncol(y)))
-   num.row.per.quant <- nrow(x)%/%intervals
-   for (i in 1:nrow(null.data)) {
-     j <- 1+ (i%/%num.row.per.quant)
-     if (j > intervals) {
-       j <- sample(1:intervals,1)
-     }
-     temp <- get(pooled.data[j])
-     null.data[i,] <- sample(temp,(ncol(x)+ncol(y)),replace=TRUE)
-   }
-   
-   # Calculating the z-statistics of 'NULL' distribution:
-   # Remember, all significant genes in this 'NULL' distribution
-   # are "FALSE-POSITIVES"
-   basevar.x <- baseOlig.error(null.data[,1:ncol(x)])
-   basevar.y <- baseOlig.error(null.data[,(1+ncol(x)):(ncol(x)+ncol(y))])
+     for (i in 1:new.intervals) { 
+      temp1 <- start1:(start1+finish1-1)
+      invar.data.int <- invar.data.ord[temp1,]
+      invar.data.x <- as.vector(as.matrix(invar.data.int[,1:ncol(x)]))
+      invar.data.y <- as.vector(as.matrix(invar.data.int[,(1+ncol(x)):
+			(ncol(x)+ncol(y))]))
+      pooled.data <- c(invar.data.x, invar.data.y)
+        null.data[start:(start+finish-1), ] <-
+    	 sample(pooled.data, size=finish*(ncol(x)+ncol(y)), replace=TRUE)
+        start <- start+ finish				
+        start1 <- start1+ finish1	# invar			
+        finish1 <- genes.sub.int.invar[i+1]
+        finish <- genes.sub.int[i+1]
+      } # end of 'for i in new.intervals..' loop
 
-   lpe.null <- lpe(null.data[,1:ncol(x)],null.data[,(1+ncol(x)):(ncol(x)+ncol(y))], 
-  		basevar.x, basevar.y, probe.set.name=as.character(1:nrow(x)))
+ # Calculating the z-statistics of 'NULL' distribution:
+      # Significant genes in 'NULL' distribution are "FALSE-POSITIVES"
 
-   z.stats.null <- lpe.null$z.stats
-   z.stats.null.iterations[,m] <- abs(z.stats.null)
-   cat("iteration number", m, "finished\n")
- }
- return(z.stats.null.iterations)
+      basevar.x <- baseOlig.error(null.data[, 1:ncol(x)])
+      basevar.y <- baseOlig.error(null.data[, (1 + ncol(x)):(ncol(x)+ncol(y))])
+      lpe.null <- lpe(null.data[, 1:ncol(x)], null.data[, (1 +ncol(x)):
+	     (ncol(x) + ncol(y))], basevar.x, basevar.y, 
+              probe.set.name = as.character(1:nrow(x)))
+
+      z.stats.null <- lpe.null$z.stats
+      #bitmap("z.null.resamp.png", type="png256")
+      #plot(z.stats.null, pch=16, cex=0.4)
+      #title("Distribution of z-null Resampling based technique")
+      #dev.off()
+      z.stats.null.iterations[,m] <- z.stats.null
+      cat("iteration number", m, "finished\n")
+    } # end of 'for m in iterations..' loop
+
+    return(z.stats.null.iterations)
 }
+
 #####
 
 mt.rawp2adjp <-  function (rawp, proc = c("Bonferroni", "Holm", 
