@@ -1,0 +1,6 @@
+
+
+- Add the code to analyze the microarray analysis with NO replicates present.
+  (Simulations are under progress, and show promising results with LPE).
+
+- Modify LPE to handle the cDNA array data  (like that in LPE version of Insightful's ArrayAnalyzer).

@@ -1,0 +1,14 @@
+Changes summary:
+
+Version 1.1.5
+______________
+
+
+- More robust detection of outliers in two sample comparison.
+  (Thanks to HyungJun Cho for the correction).
+
+- Function lpe.R is broken in several small functions, easier to understand.
+
+- Built under R 2.0.0
+
+
