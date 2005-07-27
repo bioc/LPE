@@ -1,10 +1,15 @@
 lpe <- function(x, y, basevar.x, basevar.y, df = 10, array.type = "olig",
-                probe.set.name = "OLIG.probe.name",
+                probe.set.name = NULL,
 	        trim.percent = 5) {
 
   n1 <- ncol(x)
   n2 <- ncol(y)
   ngenes <- nrow(x)
+
+  if (is.null(probe.set.name))
+    {
+      probe.set.name <- as.char(seq(nrow(x)))
+    }
 
   if (n1 < 2 | n2 < 2) {
     stop("No replicated arrays!")
@@ -24,6 +29,7 @@ lpe <- function(x, y, basevar.x, basevar.y, df = 10, array.type = "olig",
 			   y=y, median.2 = median.y, std.dev.2 = sqrt(var.y),
        		           median.diff = median.diff, pooled.std.dev = std.dev,
 			   z.stats=z.stats)
+
     row.names(data.out) <- probe.set.name
     
     return(data.out)
@@ -42,14 +48,19 @@ lpe <- function(x, y, basevar.x, basevar.y, df = 10, array.type = "olig",
     p.out <- 2 * apply(cbind(pnorm.diff, 1 - pnorm.diff), 1, min)
    
     
- #####modified by H. Cho, Oct 2004   
-
-    # Outlier checking 
-    
     sf.xi  <- smooth.spline(basevar.x[, 1], basevar.x[, 2], df = df)
     var.x0 <- fixbounds.predict.smooth.spline(sf.xi, median.x)$y
     sf.xi  <- smooth.spline(basevar.y[, 1], basevar.y[, 2], df = df)
     var.y0 <- fixbounds.predict.smooth.spline(sf.xi, median.y)$y
+
+    min.xvar <- min(basevar.x[,2])
+    min.yvar <- min(basevar.y[,2])
+
+    if (any(var.x0 < min.xvar))
+      var.x0[var.x0 < min.xvar] <- min.xvar
+    if (any(var.y0 < min.yvar))
+      var.y0[var.y0 < min.yvar] <- min.yvar
+    
     
     flag   <- matrix(".", ngenes, 2)
     p.val  <- matrix(NA, ngenes, 2)
