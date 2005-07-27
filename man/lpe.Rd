@@ -11,7 +11,7 @@
 
 \usage{
   lpe(x, y, basevar.x,basevar.y, df=10, array.type="olig", 
-      probe.set.name="OLIG.probe.name", trim.percent=5)
+      probe.set.name=NULL, trim.percent=5)
 }
 
 \arguments{
@@ -27,7 +27,8 @@
  \item{df}{Degrees of freedom used in fitting smooth.spline to estimates
 	   of var.M for bins in A}
  \item{array.type}{Currently supports oligo arrays}
- \item{probe.set.name}{Gene IDs}
+ \item{probe.set.name}{Gene IDs. By default if they are not provided
+   then 1,2,3,... is assigned as GeneID}
  \item{trim.percent}{Percent of (A, var.M) estimates to trim from low 
 	end of A}
  }
@@ -41,6 +42,7 @@ issues i.e. variability of genes with low expression intensity.
 \value{
   Data frame including x, median of x, y, median of y, median difference of (x,y), pooled standard deviation of difference, LPE p-value, outlier flag, probability of an outlier within x or y.
 }
+\author{ Nitin Jain\email{nitin.jain@pfizer.com} }
 
 
 \references{
@@ -48,6 +50,8 @@ issues i.e. variability of genes with low expression intensity.
 
 	Jain et. al. (2003) \emph{Local pooled error test for identifying
       differentially expressed genes with a small number of replicated microarrays}, Bioinformatics, 1945-1951.
+
+Jain et. al. (2005) \emph{Rank-invariant resampling based estimation of false discovery rate for analysis of small sample microarray data}, BMC Bioinformatics, Vol 6, 187.
 
 }
 

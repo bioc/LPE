@@ -13,7 +13,7 @@
 }
 
 \usage{
-  preprocess(x, data.type="MAS5",threshold=1,LOWESS=TRUE)
+  preprocess(x, data.type="MAS5",threshold=1,LOWESS=FALSE)
 }
 
 \arguments{
@@ -30,15 +30,20 @@
 \value{
   Returns a data-set of same dimensions as that of the input data. It has 
   IQR normalization for MAS4 and MAS5 data. Low intensities of MAS4, MAS5
-  and dChip data are thresholded to 1. Then data is transformed to base 2, and
-  finally lowess based normalization is applied.
+  and dChip data are thresholded to 1. Then data is transformed to base 2. If
+LOWESS normalization parameter is set as TRUE, then lowess  
+normalization is performed.
 }
+\author{ Nitin Jain\email{nitin.jain@pfizer.com} }
 
 \references{
 	J.K. Lee and M.O.Connell(2003). \emph{An S-Plus library for the analysis of differential expression}. In The Analysis of Gene Expression Data: Methods and Software. Edited by G. Parmigiani, ES Garrett, RA Irizarry ad SL Zegar. Springer, NewYork.
 	
 	Jain et. al. (2003) \emph{Local pooled error test for identifying
       differentially expressed genes with a small number of replicated microarrays}, Bioinformatics, 1945-1951.
+
+Jain et. al. (2005) \emph{Rank-invariant resampling based estimation of false discovery rate for analysis of small sample microarray data}, BMC Bioinformatics, Vol 6, 187.
+
 }
 
 

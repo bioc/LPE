@@ -31,6 +31,7 @@
 \value{
   Returns a vector respresenting the number of genes in each interval.
 }
+\author{ Nitin Jain\email{nitin.jain@pfizer.com} }
 
 
 \references{
@@ -38,6 +39,8 @@
 
 	Jain et. al. (2003) \emph{Local pooled error test for identifying
       differentially expressed genes with a small number of replicated microarrays}, Bioinformatics, 1945-1951.
+
+Jain et. al. (2005) \emph{Rank-invariant resampling based estimation of false discovery rate for analysis of small sample microarray data}, BMC Bioinformatics, Vol 6, 187.
 
 }
 

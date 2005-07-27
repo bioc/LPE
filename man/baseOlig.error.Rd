@@ -34,12 +34,15 @@
   the pooled variance of the replicate chips for genes within each quantile/bin.
 }
 
+\author{ Nitin Jain\email{nitin.jain@pfizer.com} }
 
 \references{
 	J.K. Lee and M.O.Connell(2003). \emph{An S-Plus library for the analysis of differential expression}. In The Analysis of Gene Expression Data: Methods and Software. Edited by G. Parmigiani, ES Garrett, RA Irizarry ad SL Zegar. Springer, NewYork.
 
 	Jain et. al. (2003) \emph{Local pooled error test for identifying
       differentially expressed genes with a small number of replicated microarrays}, Bioinformatics, 1945-1951.
+
+Jain et. al. (2005) \emph{Rank-invariant resampling based estimation of false discovery rate for analysis of small sample microarray data}, BMC Bioinformatics, Vol 6, 187.
 
 }
 
@@ -72,6 +75,6 @@
   # condition one (3 replicates)
   var.1 <- baseOlig.error(Ley.subset[,2:4], q=0.01)
   dim(var.1)
-  # Returns a matrix of 1000 by 2 (A,M) format
+  # Returns a matrix of 1000 by 2 (A,M) format, equal to the nrow(data) 
 }
 \keyword{methods} % from KEYWORDS.db

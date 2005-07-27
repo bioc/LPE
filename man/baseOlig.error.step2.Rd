@@ -37,6 +37,7 @@
   the median values of A for each quantile/bin and the M columns contains 
   the pooled variance of the replicate chips for genes within each quantile/bin.
 }
+\author{ Nitin Jain\email{nitin.jain@pfizer.com} }
 
 
 \references{
@@ -44,6 +45,8 @@
 
 	Jain et. al. (2003) \emph{Local pooled error test for identifying
       differentially expressed genes with a small number of replicated microarrays}, Bioinformatics, 1945-1951.
+
+Jain et. al. (2005) \emph{Rank-invariant resampling based estimation of false discovery rate for analysis of small sample microarray data}, BMC Bioinformatics, Vol 6, 187.
 
 }
 
