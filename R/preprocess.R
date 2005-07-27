@@ -1,4 +1,4 @@
-preprocess <- function(x, data.type = "MAS5", threshold=1,LOWESS=TRUE) {
+preprocess <- function(x, data.type = "MAS5", threshold=1,LOWESS=FALSE) {
   
   # Removing NA values
   x <- as.matrix(na.exclude(x))
