@@ -1,22 +1,12 @@
 Package: LPE
-Version: 1.2.0
-Date: 2004-10-15
-Title: Methods for analyzing microarray data using Local Pooled Error
-        (LPE) method
-Author: Nitin Jain <nitin_jain@groton.pfizer.com>, Michael O'Connell
-        <michaelo@warath.com>, Jae K. Lee <jaeklee@virginia.edu>.
-        Includes R source code contributed by HyungJun Cho
-        <hcho@virginia.edu>
-Maintainer: Nitin Jain <nitin_jain@groton.pfizer.com>
-Depends: multtest
-Description: This LPE library is used to do significance analysis of
-        microarray data with small number of replicates. It uses
-        resampling based FDR adjustment, and gives less conservative
-        results than traditional 'BH' or 'BY' procedures. Data
-        accepted is raw data in txt format from MAS4, MAS5 or dChip.
+Version: 1.3.0
+Date: 2005-05-08
+Title: Methods for analyzing microarray data using Local Pooled Error (LPE) method
+Author: Nitin Jain <nitin.jain@pfizer.com>, Michael O'Connell <michaelo@warath.com>, Jae K. Lee <jaeklee@virginia.edu>. Includes R source code contributed by HyungJun Cho <hcho@virginia.edu>
+Maintainer: Nitin Jain <nitin.jain@pfizer.com>
+Description: This LPE library is used to do significance analysis of microarray data with small number of replicates. It uses resampling based FDR adjustment, and gives less conservative results than traditional 'BH' or 'BY' procedures. Data accepted is raw data in txt format from MAS4, MAS5 or dChip. Data can also be supplied after normalization.
 License: LGPL
-URL: http://www.r-project.org,
-http:
-        //www.healthsystem.virginia.edu/internet/hes/biostat/bioinformatics/
-Packaged: Fri Oct 15 17:02:58 2004; njain
-
+URL: http://www.r-project.org, 
+http://www.healthsystem.virginia.edu/internet/hes/biostat/bioinformatics/,
+http://sourceforge.net/projects/r-lpe/
+Packaged: Wed May 18 20:15:14 2005; biocbuild
