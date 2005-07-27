@@ -1,7 +1,49 @@
+This file provides a brief description about the changes.
+The detailed changes and the latest version can be obtained from 
+sourceforge:
+http://sourceforge.net/projects/r-lpe/
+
+
 Changes summary:
+
+Version 1.3.0
+-------------
+
+Updated the file am.trans.R for faster computations.
+
+Version 1.2.0
+______________
+
+- Created a project called "r-lpe" on sourceforge to get the most 
+	recent files. One can keep track of changes and checkout 
+	the latest version by anonymously checking out lpe from sf.net:
+cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/r-lpe co -P LPE
+
+- Bug fix in baseOlig.error.step1 and baseOlig.error.step2:
+	For some data sets, adjacent quantile values were same due
+	to thresholding/nature of the data - which caused the number
+	of genes to be selected for var(M) caluclation as 0, and
+	hence there was an error: "Error in var(x) : 'x' is empty".
+
+- Added a check in baseOlig.error.step1 and baseOlig.error.step2 to 
+	see if min. value of variance does NOT go negative.
+
+- Updated the email address. New address is: <nitin.jain@pfizer.com>
+
+- Changed the default value of the parameter probe.set.name to NULL,
+  so that if the GeneIDs are not provided, then rownames (1,2,3,...)
+  are considered as GeneIDs.
+
+- Changed the default argument of preprocess function 'lowess=TRUE' to FALSE.
+  User should specify if they need lowess transformation.
+
+- Added a reference (new published paper on "rank-invariant
+  resampling for FDR calculations.
+
 
 Version 1.1.5
 ______________
+
 
 
 - More robust detection of outliers in two sample comparison.
