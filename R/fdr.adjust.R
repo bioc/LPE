@@ -73,6 +73,7 @@ if(adjp=="resamp"){
         col.id <- grep(adjp, colnames(data.out))
  	aa <- cbind(FDR=data.out[,col.id],
 		 z.real=data.out$abs.z.stats)
+      rownames(aa) <- rownames(data.out)
 	aa <- aa[order(aa[,2],decreasing=TRUE),]
        return(aa)
     } # End of adjp=="BH" || adjp=="BY"
