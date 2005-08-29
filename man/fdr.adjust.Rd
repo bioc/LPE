@@ -16,7 +16,7 @@
 
 \arguments{
  \item{lpe.result}{Data frame obtained from calling lpe function}
- \item{adjp}{Type of adjustment procedure}
+ \item{adjp}{Type of adjustment procedure. Can be "resamp", "BH", "BY", or "mix.all"}
  \item{target.fdr}{Desired FDR level (used only for resampling
  	based adjustment)}
  \item{iterations}{Number of iterations for stable z-critical.}
@@ -26,7 +26,12 @@
 
 
 \details{
- Returns the output similar to lpe function, including adjusted fdr
+  Returns the output similar to lpe function, including adjusted FDR.
+  BH and BY give Benjamini-Hochberg and Benjamini-Yekutieli adjusted
+  FDRs (adopted from multtest procedure) and "mix.all" gives SAM-like
+  FDR adjustment.  For further details on the comparisons of each of
+  these methods, please see the reference paper (Rank-invariant
+  resampling...) mentioned below.
  }
 \author{ Nitin Jain\email{nitin.jain@pfizer.com} }
 
