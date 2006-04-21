@@ -10,3 +10,4 @@ URL: http://www.r-project.org,
 http://www.healthsystem.virginia.edu/internet/hes/biostat/bioinformatics/,
 http://sourceforge.net/projects/r-lpe/
 Packaged: Wed May 18 20:15:14 2005; biocbuild
+biocViews: Microarray, Statistics, DifferentialExpression
