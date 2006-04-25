@@ -1,5 +1,5 @@
-\name{mt.rawp2adjp}
-\alias{mt.rawp2adjp}
+\name{mt.rawp2adjp.LPE}
+\alias{mt.rawp2adjp.LPE}
 \title{Adjusted p-values for simple multiple testing procedures}
 \description{
   This function computes adjusted \eqn{p}-values for simple
@@ -11,7 +11,7 @@
   control of the false discovery rate (FDR). 
 }
 \usage{
-mt.rawp2adjp(rawp, proc=c("Bonferroni", "Holm", "Hochberg", "SidakSS", "SidakSD", "BH", "BY"))
+mt.rawp2adjp.LPE(rawp, proc=c("Bonferroni", "Holm", "Hochberg", "SidakSS", "SidakSD", "BH", "BY"))
 }
 \arguments{
   \item{rawp}{A vector of raw (unadjusted) \eqn{p}-values for each
