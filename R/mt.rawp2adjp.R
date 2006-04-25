@@ -1,7 +1,11 @@
 ## The following function has been taken from 
-# multtest library (by Dudoit et. al.)
+## multtest library (by Dudoit et. al.)
 
-mt.rawp2adjp <-  function (rawp, proc = c("Bonferroni", "Holm",
+## Note - The function has been renamed - ".LPE" has been added in
+## the end, as this function in LPE preserves the order of the
+## genes.
+
+mt.rawp2adjp.LPE <-  function (rawp, proc = c("Bonferroni", "Holm",
                            "Hochberg", "SidakSS", "SidakSD", "BH", "BY")) {
   m <- length(rawp)
   n <- length(proc)
@@ -60,7 +64,7 @@ mt.rawp2adjp <-  function (rawp, proc = c("Bonferroni", "Holm",
     adjp[, "BY"] <- tmp
   }
 
-  # inversing the sort
+  ## inversing the sort
   ndx <- order(index)
   adjp <- adjp[ndx,]
 
