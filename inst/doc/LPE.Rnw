@@ -1,34 +1,69 @@
-% -*- mode: noweb; noweb-default-code-mode: R-mode; -*-
 %\VignetteIndexEntry{LPE test for microarray data with small number of replicates}
 %\VignetteKeywords{Local pooled error, replicates}
 %\VignetteDepends{LPE}
 %\VignettePackage{LPE}
-%documentclass[12pt, a4paper]{article}
-\documentclass[12pt]{article}
 
+\documentclass[12pt]{article}
 \usepackage{amsmath,pstricks}
 \usepackage{hyperref}
 \usepackage[authoryear,round]{natbib}
+\usepackage{url}
+\usepackage{natbib}
+\usepackage{isorot}
+\usepackage{fullpage} % standard 1 inch margins 
 
-\textwidth=6.2in
-\textheight=8.5in
-%\parskip=.3cm
-\oddsidemargin=.1in
-\evensidemargin=.1in
-\headheight=-.3in
-
-\newcommand{\scscst}{\scriptscriptstyle}
-\newcommand{\scst}{\scriptstyle}
-\newcommand{\Rfunction}[1]{{\texttt{#1}}}
 \newcommand{\Robject}[1]{{\texttt{#1}}}
+\newcommand{\Rfunction}[1]{{\texttt{#1}}}
 \newcommand{\Rpackage}[1]{{\textit{#1}}}
+\newcommand{\Rclass}[1]{{\textit{#1}}}
+\newcommand{\Rmethod}[1]{{\textit{#1}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\email}[1]{\texttt{#1}}
 
-\author{Nitin Jain, Michael O Connell, and Jae K. Lee}
+%%% Hyperlinks for ``PDF Latex'' :
+\ifx\pdfoutput\undefined%%--- usual ``latex'' :
+  %% Stuff w/out hyperref
+\else%%---------------------- `` pdflatex '' : -- still gives funny errors
+  \RequirePackage{hyperref}
+  %% The following is R's share/texmf/hyperref.cfg :
+  %% Stuff __with__ hyperref :
+  \hypersetup{%
+    %default: hyperindex,%
+    colorlinks,%
+    %default: pagebackref,%
+    linktocpage,%
+    %%plainpages=false,%
+    linkcolor=Green,%
+    citecolor=Blue,%
+    urlcolor=Red,%
+    pdfstartview=Fit,%
+    pdfview={XYZ null null null}%
+    }
+  \RequirePackage{color}
+  \definecolor{Blue}{rgb}{0,0,0.8}
+  \definecolor{Green}{rgb}{0.1,0.75,0.1}
+  \definecolor{Red}{rgb}{0.7,0,0}
+  %% ESS JCGS v2 :
+  %%\hypersetup{backref,colorlinks=true,pagebackref=true,hyperindex=true}
+  %%\hypersetup{backref,colorlinks=false,pagebackref=true,hyperindex=true}
+\fi
+
+\usepackage{Sweave}
 \begin{document}
 \title{LPE test for microarray data with a small number of replicates}
+\author{
+        Nitin Jain
+        \email{<nitin.jain@pfizer.com>}, 
+        \\
+        Michael O Connell
+        \email{<moconnell@insightful.com>},\\
+         and Jae K. Lee
+        \email{<jaeklee@virginia.edu>}
+        }
 
 \maketitle
 \tableofcontents
+
 
 \section{Introduction}
 The \Rpackage{LPE} package describes local-pooled-error (LPE) 
@@ -44,196 +79,179 @@ expression intensity and by the fact that many gene expression
 studies are implemented with a limited number of replicated arrays
 \cite{Chen:1997}.
 
-Step by step analysis is presented in Section \ref{sec:analysis} 
-using data from a 6-chip oligonucleotide microarray study of a mouse immune response study.
-
-Details of methodology and application of Local Pooled Error (LPE) test 
-can be obtained from the LPE paper, published in Bioinformatics
-\cite{Jain:2003}.
+LPE library is primarily used for analyzing data between two
+conditions. To use it for paired data, see \Rpackage{LPEP} library. For using
+LPE in multiple conditions, use \Rpackage{HEM} library.
 
 
-\section{Mouse Immune Response Study dataset}
+\subsection{Mouse Immune Response Study dataset}
 \label{sec:analysis}
-Load the library
-\begin{verbatim}
 
-> set.seed(0) # To have reproducible results
-> library(LPE) 
+Step by step analysis is presented in Section \ref{sec:analysis}
+using data from a 6-chip (Affymetrix munie GeneChip, MG-U74Av2)
+oligonucleotide microarray study of a mouse immune response study.
+Three replicates of Affymetrix oligonucleotide chips per condition
+(Naive and Activated) were used.  Mouse immune response study was
+conducted by \href{http://bme.virginia.edu/ley/lab/}{Dr.  Klaus
+ Ley}, Univeristy of Virginia.  
 
-> data(Ley)
-
-> dim(Ley)
-
-[1] 12488	7
-
-> Ley[1:3,]
-               ID   c1   c2   c3     t1     t2     t3
-1  AFFX-MurIL2_at 16.0 14.1 19.3 2782.7 2861.3 2540.2
-2 AFFX-MurIL10_at 22.7  6.9 28.2   18.6   12.7    7.5
-3  AFFX-MurIL4_at 33.9 17.1 23.9   24.9   25.2   24.9
-
-> Ley[,2:7] <- preprocess(Ley[,2:7], data.type = "MAS5")
-
-> Ley[1:3,]
-
-            ID       c1       c2       c3        t1        t2        t3
-1  AFFX-MurIL2_at 4.058556 4.077996 4.419651 11.681194 11.668376 11.528191
-2 AFFX-MurIL10_at 4.563176 3.058342 4.960576  5.125427  4.303960  3.707980
-3  AFFX-MurIL4_at 5.141769 4.327081 4.718751  5.484593  5.255005  5.330675
+Details of methodology and application of Local Pooled Error (LPE)
+test can be obtained from the LPE paper, published in Bioinformatics
+\cite{Jain:2003}, and detailed description of \code{Rank-invariant
+  resampling based FDR method} can be obtained from FDR paper,
+published in BMC Bioinformatics \cite{Jain:2005}.
 
 
-\end{verbatim}
+\section{Analyzing data set using \code{LPE} library}
 
+\subsection{Check installed version of \Rpackage{LPE}}
+First, make sure that the version of LPE library you are using is
+atleast 1.6.0
+<<echo=TRUE, eval=FALSE>>=
+packageDescription("LPE")
+@ 
+If you have an older version, download the latest version from Bioconductor.
 
-Mouse immune response study was conducted by 
-\href{http://hsc.Virginia.EDU/medicine/basic-sci/biomed/ley/}{Dr. Klaus Ley}, Univeristy of Virginia. Three replicates of Affymetrix oligonucleotide chips per condition were used. Based on M vs A sctater plot matrix, IQR normalization was performed, so that interquartile ranges on all chips are set to their widest range. It is performed by multiplying by a scaling factor. Note that this is a simple constant-scale \& location normalization step. Finally log based 2 transformation was done. 
-Replcates of Naive condition are named as c1, c2, c3 and those of 
+\subsection{Load the library}
+
+First, set the seed to 0 (to have reproducible results as shown
+below):
+
+<<echo=TRUE, eval=TRUE>>=
+set.seed(0) 
+@ 
+
+Load the LPE library:
+<<echo=TRUE, eval=TRUE>>=
+library(LPE) 
+@ 
+
+\subsection{Load the data set}
+Load the data set `Ley' (built in LPE package), check its dimensions
+and see the dataset.  For illustration purposes, we will use only a
+small subsetion of Ley data (1000 rows) in the subsequent examples.
+Replicates of Naive condition are named as c1, c2, c3 and those of
 Actiavted condition are named as t1, t2 and t3 respectively.
 
-\vspace{0.5in}
+<<echo=TRUE, eval=TRUE>>=
+data(Ley)
+dim(Ley)
+head(Ley)
+Ley.subset <- Ley[seq(1000),]
+@
 
-\noindent Remove the control spots
-\begin{verbatim}
+\subsection{Normalization of data} 
+Do the pre-processing (or normalization) of the data. Since the data
+obtained here is in MAS5 format, we will use data.type=MAS5. (Note
+that LPE does not require users to normalize the gene-expression data
+using the \code{preprocess} function. Users can very well use other
+methods, such as \code{RMA} or any other method of their choice.)
 
-> Ley <- Ley[substring(Ley$ID,1,4) !="AFFX",] 
-	
-> dim(Ley)
+The \code{preprocess} function does IQR normalization (so that
+interquartile ranges on all chips are set to their widest range),
+thresholding (making the instensity values lower than 1.0 to 1.0),
+log based 2 transformation and LOWESS normalization (if LOWESS is
+set to TRUE).  Note that this preprocess is a simple constant-scale and
+location-normalization step.
 
-[1] 12422	7
+<<echo=TRUE, eval=TRUE>>=
+Ley.normalized <- Ley.subset
+Ley.normalized[,2:7] <- preprocess(Ley.subset[,2:7], data.type = "MAS5")
+Ley.normalized[1:3,]
+@
 
-> Ley[1:3,]
+\noindent Remove the Affymetrix control spots (whose ID begins with `AFFX'):
 
-           ID        c1        c2        c3        t1        t2        t3
-67   92539_at 11.999273 12.253685 12.398052 11.924385 12.042756 11.824377
-68 92540_f_at  8.948516  9.034942  8.674348 11.284850 11.323132 11.289058
-69   92541_at  6.242440  6.223671  6.185748  5.866883  5.775228  6.430501
+<<echo=TRUE, eval=TRUE>>=
+Ley.final <- Ley.normalized[substring(Ley.normalized$ID,1,4) !="AFFX",] 
+dim(Ley.final)
+Ley.final[1:3,]
+@
 
-\end{verbatim}
-%\\
+\subsection{Obtain baseline error distribution}
 \noindent Calculate the baseline error distribution of Naive contdition, which returns a dataframe of A vs M for selected number of bins (= 1/q), 
-where q = quantile. 
+where q = quantile.
 
-\begin{verbatim}
 
-> var.Naive <- baseOlig.error(Ley[,2:4],q=0.01)
+<<echo=TRUE, eval=TRUE>>=
+var.Naive <- baseOlig.error(Ley.final[,2:4],q=0.01)
+dim(var.Naive)
+var.Naive[1:3,]
+@
 
-> dim(var.Naive)
-
-[1] 12422     2
-
-> var.Naive[1:3,]
-
-           A      var.M
-67 12.253685 0.04541592
-68  8.948516 0.05166602
-69  6.223671 0.24738118
-
-\end{verbatim}
 \noindent Similarly calculate the base-line distribution of Activated condition:
 
-\begin{verbatim}
 
-> var.Activated <- baseOlig.error(Ley[,5:7], q=0.01)
+<<echo=TRUE, eval=TRUE>>=
+var.Activated <- baseOlig.error(Ley.final[,5:7], q=0.01)
+dim(var.Activated)
+var.Activated[1:3,]
+@
 
-> dim(var.Activated)
+\subsection{Calculate \code{z-statistics} for each gene}
+\label{z-stats}
+Calculate the lpe variance estimates as described above. The
+function \code{lpe} takes the first two arguments as the replicated
+data, next two arguments as the baseline distribution of the
+replicates calculated from the \code{baseOlig.error} function, and Gene
+IDs as probe.set.name.
 
-[1] 12422     2
+<<echo=TRUE, eval=TRUE>>=
+lpe.val <- data.frame(lpe(Ley.final[,5:7], Ley.final[,2:4], 
+                          var.Activated, var.Naive,
+                          probe.set.name=Ley.final$ID)
+                      )
 
-> var.Activated[1:3,]
+lpe.val <- round(lpe.val, digits=2)
+dim (lpe.val)
+lpe.val[1:3,]
+@
 
-        A      var.M
-67 11.924385 0.01296899
-68 11.289058 0.01884620
-69  5.866883 0.27232983
+\subsection{FDR correction}
 
-\end{verbatim}
+Various FDR correction methods are supported in LPE: \code{BH}
+(Benjamini-Hochberg), \code{BY} (Benjamini-Yekutieli),
+\code{mix.all} (does FDR adjustment similar to that of SAM) or
+\code{resamp} (Rank invariant resampling based FDR correction -
+recommended method). For the sake of completion, there is an option
+``Bonferroni'' to get Bonferroni adjusted p-values also. Note that
+BH and BY methods are adopted from \code{multtest} package.
 
-\noindent Calculate the lpe variance estimates as described above. The function {\it lpe} takes the first two arguments as the replicated data, next two arguments as the baseline distribution of the replicates calculated from the {\it baseOlig.error} function, Gene IDs as probe.set.name. Adjustment for multiple comparison is applied using Bioconductor's multtest package (Dudoit et. al.)
-
-\begin{verbatim}
-> lpe.val <- data.frame(lpe(Ley[,5:7], Ley[,2:4], var.Activated, var.Naive,
-	      probe.set.name=Ley$ID))
-
-> lpe.val <- round(lpe.val, digits=2)
-
-> dim (lpe.val)
-
-[1] 12422	13
-
-> lpe.val[1:3,]
-
-          x.t1  x.t2  x.t3 median.1 std.dev.1  y.c1  y.c2  y.c3 median.2
-92539_at   11.92 12.04 11.82    11.92      0.11 12.00 12.25 12.40    12.25
-92540_f_at 11.28 11.32 11.29    11.29      0.14  8.95  9.03  8.67     8.95
-92541_at    5.87  5.78  6.43     5.87      0.52  6.24  6.22  6.19     6.22
-
-           std.dev.2 median.diff pooled.std.dev z.stats
-92539_at        0.21       -0.33           0.17   -1.88
-92540_f_at      0.23        2.34           0.19   12.18
-92541_at        0.50       -0.36           0.52   -0.68
-
-  
-\end{verbatim}
-
-\noindent Doing FDR correction
-
-\begin{verbatim}
-
-> fdr.BH <- fdr.adjust(lpe.val, adjp="BH")
-
-> dim(fdr.BH)
-
-[1] 12422    2
-
-> round(fdr.BH[1:4, ],2)
-
-     FDR z.real
-7915   0  26.66
-5557   0  24.68
-344    0  24.22
-5985   0  24.22
-
-\end{verbatim}
+<<echo=TRUE, eval=TRUE>>=
+fdr.BH <- fdr.adjust(lpe.val, adjp="BH")
+dim(fdr.BH)
+round(fdr.BH[1:4, ],2)
+@
 
 \noindent Resampling based FDR adjustment takes a while to run, and
-returns the critical z-values and corresponding FDR. 
-
-\begin{verbatim}
-
-> fdr.2 <- fdr.adjust(lpe.val, adjp="resamp", iterations=2)
-
-iteration number 1 is in progress
-iteration number 1 finished
-iteration number 2 is in progress
-iteration number 2 finished
-Computing FDR...
-
-> fdr.2
-
-     target.fdr z.critical
- [1,]      0.001       3.54
- [2,]      0.010       2.69
- [3,]      0.020       2.37
- [4,]      0.030       2.17
- [5,]      0.040       2.05
- [6,]      0.050       1.94
- [7,]      0.060       1.85
- [8,]      0.070       1.76
- [9,]      0.080       1.69
-[10,]      0.090       1.63
-[11,]      0.100       1.56
-[12,]      0.150       1.31
-[13,]      0.200       1.12
-[14,]      0.500       0.25
+returns the critical z-values and corresponding FDR. Users can
+decide from the table that which z.critical values to select (from
+the lpe results, here in lpe.val) to obtain the target fdr.
 
 
-\end{verbatim}
+<<echo=TRUE, eval=TRUE>>=
+fdr.resamp <- fdr.adjust(lpe.val, adjp="resamp", iterations=2)
+fdr.resamp
+@
+
 
 
 \noindent Note that above table may differ slightly due to generation 
-of 'NULL distribution' by resampling. For each target.fdr, we can 
-note critical z-value,
-above which all genes are considered significant.
+of `NULL distribution' by resampling. For each target.fdr, we can
+note critical z-value, above which all genes are considered
+significant. For example, in the above table, to obtain all the
+genes with FDR less than or equal to 5\%, identify the
+\code{z.critical} corresponding to 5\%, (=1.77), and subselect all the genes
+obtained from LPE-method (section \ref{z-stats}) for which
+absolute value of \code{z.statistics} is greater than 1.77.
+
+Finally, here is an example of Bonferroni correction (sorted in order
+of significance):
+<<echo=TRUE, eval=TRUE>>=
+Bonferroni.adjp <- fdr.adjust(lpe.val, adjp="Bonferroni")
+head(Bonferroni.adjp)
+@
+
 
 \section{Discussion}
 \label{sec:discussion}
@@ -251,8 +269,33 @@ Hoering, S. Kaluzny, L. Kannapel, D. Kinsey, P. McKinnis,
 D. Stanford, S. Vega and H. Yan.
 
 
+\begin{thebibliography}{10}
+\expandafter\ifx\csname natexlab\endcsname\relax\def\natexlab#1{#1}\fi
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{{\tt #1}}\fi
 
-\bibliography{LPE}
+
+\bibitem{Jain:2003}
+Jain et.\ al.
+\newblock {Local-pooled-error test for identifying 
+differentially expressed genes with a small number of replicated
+microarrays},
+\newblock {\em Bioinformatics}, 2003, Vol 19, No. 15,  pp: 1945-1951.
+
+
+\bibitem{Jain:2005}
+Jain et.\ al.\ 
+\newblock{Rank-invariant resampling based estimation of false
+    discovery rate for analysis of small sample microarray data},
+\newblock {\em  BMC Bioinformatics}, 2005, Vol 6, 187.
+
+\bibitem{Chen:1997}
+Chen et.\ al.\
+\newblock {Ratio-based
+decisions and the quantitative analysis of cDNA microarray images},
+\newblock {\em Biomedical Optics}, 1997, Vol 2, pp: 364-374.
+
+\end{thebibliography}
 
 \end{document}
 

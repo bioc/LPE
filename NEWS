@@ -1,8 +1,25 @@
 This file provides a brief description about the changes.
-The detailed changes and the latest version can be obtained from 
-sourceforge:
-http://sourceforge.net/projects/r-lpe/
 
+
+Changes summary:
+
+Version 1.6.0
+-------------
+
+- Changed the name of the function "mt.rawp2adjp" to
+  "mt.rawp2adjp.LPE" in order to avoid conflict with the original
+  function from multtest library.
+
+- Added the references to paired LPE - "LPEP library" and LPE for
+  multiple conditions - "HEM library".
+
+- Added an option "Bonferroni" in fdr.adjust.R to get Bonferroni
+  adjusted p-values. (Though it is recommended to use FDR,
+  Bonferroni adjusted method has been added here for users who want
+  it.)
+
+- Updated the document 'LPE.pdf' (hands on demonstration of LPE) in
+  inst/doc.
 
 Changes summary:
 

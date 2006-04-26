@@ -34,7 +34,7 @@
 LOWESS normalization parameter is set as TRUE, then lowess  
 normalization is performed.
 }
-\author{ Nitin Jain\email{nitin.jain@pfizer.com} }
+\author{ Nitin Jain \email{nitin.jain@pfizer.com} }
 
 \references{
 	J.K. Lee and M.O.Connell(2003). \emph{An S-Plus library for the analysis of differential expression}. In The Analysis of Gene Expression Data: Methods and Software. Edited by G. Parmigiani, ES Garrett, RA Irizarry ad SL Zegar. Springer, NewYork.
