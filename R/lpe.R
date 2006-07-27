@@ -8,7 +8,7 @@ lpe <- function(x, y, basevar.x, basevar.y, df = 10, array.type = "olig",
 
   if (is.null(probe.set.name))
     {
-      probe.set.name <- as.char(seq(nrow(x)))
+      probe.set.name <- as.character(seq(nrow(x)))
     }
 
   if (n1 < 2 | n2 < 2) {
