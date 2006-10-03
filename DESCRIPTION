@@ -1,5 +1,5 @@
 Package: LPE
-Version: 1.7.0
+Version: 1.8.0
 Date: 2006-04-21
 Title: Methods for analyzing microarray data using Local Pooled Error (LPE) method
 Author: Nitin Jain <nitin.jain@pfizer.com>, Michael O'Connell <michaelo@warath.com>, Jae K. Lee <jaeklee@virginia.edu>. Includes R source code contributed by HyungJun Cho <hcho@virginia.edu>
