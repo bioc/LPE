@@ -4,7 +4,7 @@
 %\VignettePackage{LPE}
 
 \documentclass[12pt]{article}
-\usepackage{amsmath,pstricks}
+\usepackage{amsmath}
 \usepackage{hyperref}
 \usepackage[authoryear,round]{natbib}
 \usepackage{url}
