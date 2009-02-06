@@ -13,13 +13,14 @@
 }
 
 \format{
- \item{Ley}{matrix of 12488 genes by 7 columns. First column is the GeneID, 
-	  next three columns are replicates in condition one, and 
-last three columns are replicates in condition 2.
- For details, contact. Dr. Klaus Ley (kfl3f@virginia.edu) 
- http://hsc.virginia.edu/medicine/basic-sci/biomed/ley/}
-}
-\author{ Nitin Jain\email{nitin.jain@pfizer.com} }
+ Matrix of 12488 genes by 7 columns. First column is the GeneID, 
+ next three columns are replicates in condition one, and 
+ last three columns are replicates in condition 2.
+
+ For details, contact. Dr. Klaus Ley, \email{kfl3f@virginia.edu}, 
+ \url{http://hsc.virginia.edu/medicine/basic-sci/biomed/ley/}}
+
+\author{ Nitin Jain \email{nitin.jain@pfizer.com} }
 
 
 \references{

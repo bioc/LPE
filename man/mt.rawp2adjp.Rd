@@ -31,27 +31,29 @@ mt.rawp2adjp.LPE(rawp, proc=c("Bonferroni", "Holm", "Hochberg", "SidakSS", "Sida
 \details{
   Adjusted \eqn{p}-values are computed for simple FWER and FDR
   controlling procedures based on a vector of raw (unadjusted)
-  \eqn{p}-values.\cr 
-\item{Bonferroni}{Bonferroni single-step adjusted \eqn{p}-values
-for strong control of the FWER.}
-\item{Holm}{Holm (1979) step-down adjusted \eqn{p}-values for
-strong control of the FWER.}
-\item{Hochberg}{Hochberg (1988) step-up adjusted \eqn{p}-values
-for 
-strong control of the FWER (for raw (unadjusted) \eqn{p}-values
-satisfying the Simes inequality).}
-\item{SidakSS}{Sidak single-step adjusted \eqn{p}-values for
-strong control of the FWER (for positive orthant dependent test
-statistics).}
-\item{SidakSD}{Sidak step-down adjusted \eqn{p}-values for
-strong control of the FWER (for positive orthant dependent test
-statistics).}
-\item{BH}{adjusted \eqn{p}-values for the Benjamini & Hochberg
-(1995) step-up FDR controlling procedure (independent and positive
-regression dependent test statistics).}
-\item{BY}{adjusted \eqn{p}-values for the Benjamini & Yekutieli
-(2001) step-up FDR controlling procedure (general dependency
-structures).} 
+  \eqn{p}-values.
+\describe{
+   \item{Bonferroni}{Bonferroni single-step adjusted \eqn{p}-values
+   for strong control of the FWER.}
+   \item{Holm}{Holm (1979) step-down adjusted \eqn{p}-values for
+   strong control of the FWER.}
+   \item{Hochberg}{Hochberg (1988) step-up adjusted \eqn{p}-values
+   for 
+   strong control of the FWER (for raw (unadjusted) \eqn{p}-values
+   satisfying the Simes inequality).}
+   \item{SidakSS}{Sidak single-step adjusted \eqn{p}-values for
+   strong control of the FWER (for positive orthant dependent test
+   statistics).}
+   \item{SidakSD}{Sidak step-down adjusted \eqn{p}-values for
+   strong control of the FWER (for positive orthant dependent test
+   statistics).}
+   \item{BH}{adjusted \eqn{p}-values for the Benjamini & Hochberg
+   (1995) step-up FDR controlling procedure (independent and positive
+   regression dependent test statistics).}
+   \item{BY}{adjusted \eqn{p}-values for the Benjamini & Yekutieli
+   (2001) step-up FDR controlling procedure (general dependency
+   structures).} 
+ }
 }
 
 \value{

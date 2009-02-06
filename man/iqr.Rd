@@ -6,7 +6,8 @@
 }
 
 \description{
-  Finds inter-quartile range of the data = {75th percentile - 25th percentile}.
+  Finds inter-quartile range of the data = \{75th percentile - 25th
+  percentile\}. 
 }
 
 \usage{
