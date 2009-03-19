@@ -1,5 +1,5 @@
 Package: LPE
-Version: 1.17.1
+Version: 1.17.2
 Title: Methods for analyzing microarray data using Local Pooled Error (LPE) method
 Author: Nitin Jain <emailnitinjain@gmail.com>, Michael O'Connell <michaelo@warath.com>, Jae K. Lee <jaeklee@virginia.edu>. Includes R source code contributed by HyungJun Cho <hcho@virginia.edu>
 Maintainer: Nitin Jain <emailnitinjain@gmail.com>
@@ -7,4 +7,4 @@ Description: This LPE library is used to do significance analysis of microarray 
 License: LGPL
 URL: http://www.r-project.org, 
 http://www.healthsystem.virginia.edu/internet/hes/biostat/bioinformatics/, http://sourceforge.net/projects/r-lpe/
-biocViews: Microarray, Statistics, DifferentialExpression
+biocViews: Microarray, Bioinformatics, DifferentialExpression
