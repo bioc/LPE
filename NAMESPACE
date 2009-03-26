@@ -1,0 +1,17 @@
+importFrom(grDevices, replayPlot)
+
+importFrom(methods, showClass, showMlist)
+
+importFrom(stats, approx, as.ts, coef, dendrapply, deviance, end,
+           formula, frequency, IQR, is.leaf, knots, lowess, median,
+           na.exclude, naprint, pf, pnorm, predict, print.anova,
+           printCoefmat, pt, quantile, reformulate, residuals,
+           smooth.spline, start, symnum, terms, time, ts, tsp, var,
+           write.ftable)
+
+importFrom(utils, browseURL, menu, str, toBibtex, zip.file.extract)
+
+export("resamp.adj","quartile.normalize","quan.norm","preprocess","permute",
+"n.genes.adaptive.int","mt.rawp2adjp.LPE","lpe","lowess.normalize","iqr","am.trans",
+"baseOlig.error","baseOlig.error.step1","baseOlig.error.step2","fdr.adjust","fixbounds.predict.smooth.spline")
+
