@@ -35,7 +35,7 @@
 
 \details{
   The LPE test statistic numerator is the difference in medians between the
-  two experimental conditions. The test statistic denominator is the combined pooled standard error for the two experimental conditions obtained by looking up the var.M from each baseOlig.error variance function. The conversion to p-values is based on the Gaussian distribution for difference if order statistics (medians). The user may select bith the smoother degrees of freedom (smaller is smoother) and the trim percent to obtain a variance fucntion to suit particular 
+  two experimental conditions. The test statistic denominator is the combined pooled standard error for the two experimental conditions obtained by looking up the var.M from each baseOlig.error variance function. The conversion to p-values is based on the Gaussian distribution for difference if order statistics (medians). The user may select both the smoother degrees of freedom (smaller is smoother) and the trim percent to obtain a variance function to suit particular 
 issues i.e. variability of genes with low expression intensity.
 }
 

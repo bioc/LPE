@@ -14,7 +14,7 @@ Does Normalization based on quartile range
 }
 
 \arguments{
-  \item{x}{x is a matrix or dataframe on which normalization has to be performed.}
+  \item{x}{x is a matrix or data.frame on which normalization has to be performed.}
   \item{percent}{Percentage for which normalization is needed}
 }
 

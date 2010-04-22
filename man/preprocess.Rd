@@ -9,7 +9,7 @@
 \description{
   Finds inter-quartile range of the data = (75th percentile - 25th percentile),
   thresholds low intensity MAS4, MAS5 and dChip data to 1, then log transforms
-  the data (base 2), and dows lowess normalization  
+  the data (base 2), and does lowess normalization  
 }
 
 \usage{

@@ -16,13 +16,13 @@ fixbounds.predict.smooth.spline(object,x, deriv=0)
 \arguments{
   \item{object}{variance from baseOlig.error function}
   \item{x}{vector for which variance needs to be predicted}
-  \item{deriv}{derivative of the vetor required, default =0}
+  \item{deriv}{derivative of the vector required, default =0}
 }
 
 \value{
   Returns the predicted variance for the given vector based on the
   baseline error distribution. Maximum and minimum predicted values 
-  for the vetor are same as those of baseline error distribution 
+  for the vector are same as those of baseline error distribution 
 }
 \author{ Nitin Jain\email{nitin.jain@pfizer.com} }
 

@@ -19,7 +19,7 @@
 }
 
 \value{
-  Returns matrix with 2 columns cbind(A.M) and rows comprising all permutations of individual chip columns of the input matrix y. Note that for each pair of chips M is calculated twice, once for xi-xj and once for xj-xi. The resulting marix thus has twice the number of rows as the input matrix y.  
+  Returns matrix with 2 columns cbind(A.M) and rows comprising all permutations of individual chip columns of the input matrix y. Note that for each pair of chips M is calculated twice, once for xi-xj and once for xj-xi. The resulting matrix thus has twice the number of rows as the input matrix y.  
 }
 \author{ Nitin Jain\email{nitin.jain@pfizer.com} }
 
