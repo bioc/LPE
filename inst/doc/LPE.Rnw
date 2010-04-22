@@ -80,8 +80,8 @@ studies are implemented with a limited number of replicated arrays
 \cite{Chen:1997}.
 
 LPE library is primarily used for analyzing data between two
-conditions. To use it for paired data, see \Rpackage{LPEP} library. For using
-LPE in multiple conditions, use \Rpackage{HEM} library.
+conditions. To use it for paired data, see \Rpackage{LPEP} library.
+For using LPE in multiple conditions, use \Rpackage{HEM} library.
 
 
 \subsection{Mouse Immune Response Study dataset}
@@ -106,7 +106,7 @@ published in BMC Bioinformatics \cite{Jain:2005}.
 
 \subsection{Check installed version of \Rpackage{LPE}}
 First, make sure that the version of LPE library you are using is
-atleast 1.6.0
+at least 1.6.0
 <<echo=TRUE, eval=FALSE>>=
 packageDescription("LPE")
 @ 
@@ -129,9 +129,9 @@ library(LPE)
 \subsection{Load the data set}
 Load the data set `Ley' (built in LPE package), check its dimensions
 and see the dataset.  For illustration purposes, we will use only a
-small subsetion of Ley data (1000 rows) in the subsequent examples.
+small subset of Ley data (1000 rows) in the subsequent examples.
 Replicates of Naive condition are named as c1, c2, c3 and those of
-Actiavted condition are named as t1, t2 and t3 respectively.
+Activated condition are named as t1, t2 and t3 respectively.
 
 <<echo=TRUE, eval=TRUE>>=
 data(Ley)
@@ -148,11 +148,11 @@ using the \code{preprocess} function. Users can very well use other
 methods, such as \code{RMA} or any other method of their choice.)
 
 The \code{preprocess} function does IQR normalization (so that
-interquartile ranges on all chips are set to their widest range),
-thresholding (making the instensity values lower than 1.0 to 1.0),
+inter-quartile ranges on all chips are set to their widest range),
+thresholding (making the intensity values lower than 1.0 to 1.0),
 log based 2 transformation and LOWESS normalization (if LOWESS is
-set to TRUE).  Note that this preprocess is a simple constant-scale and
-location-normalization step.
+set to TRUE).  Note that this preprocess is a simple constant-scale
+and location-normalization step.
 
 <<echo=TRUE, eval=TRUE>>=
 Ley.normalized <- Ley.subset
@@ -169,7 +169,8 @@ Ley.final[1:3,]
 @
 
 \subsection{Obtain baseline error distribution}
-\noindent Calculate the baseline error distribution of Naive contdition, which returns a dataframe of A vs M for selected number of bins (= 1/q), 
+\noindent Calculate the baseline error distribution of Naive condition,
+which returns a data.frame of A vs M for selected number of bins (= 1/q), 
 where q = quantile.
 
 
@@ -193,8 +194,8 @@ var.Activated[1:3,]
 Calculate the lpe variance estimates as described above. The
 function \code{lpe} takes the first two arguments as the replicated
 data, next two arguments as the baseline distribution of the
-replicates calculated from the \code{baseOlig.error} function, and Gene
-IDs as probe.set.name.
+replicates calculated from the \code{baseOlig.error} function,
+and Gene IDs as probe.set.name.
 
 <<echo=TRUE, eval=TRUE>>=
 lpe.val <- data.frame(lpe(Ley.final[,5:7], Ley.final[,2:4], 
@@ -241,8 +242,8 @@ of `NULL distribution' by resampling. For each target.fdr, we can
 note critical z-value, above which all genes are considered
 significant. For example, in the above table, to obtain all the
 genes with FDR less than or equal to 5\%, identify the
-\code{z.critical} corresponding to 5\%, (=1.77), and subselect all the genes
-obtained from LPE-method (section \ref{z-stats}) for which
+\code{z.critical} corresponding to 5\%, (=1.77), and subselect all
+the genes obtained from LPE-method (section \ref{z-stats}) for which
 absolute value of \code{z.statistics} is greater than 1.77.
 
 Finally, here is an example of Bonferroni correction (sorted in order
@@ -298,8 +299,3 @@ decisions and the quantitative analysis of cDNA microarray images},
 \end{thebibliography}
 
 \end{document}
-
-
-
-
-
