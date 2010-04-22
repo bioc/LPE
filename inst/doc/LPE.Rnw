@@ -6,9 +6,7 @@
 \documentclass[12pt]{article}
 \usepackage{amsmath}
 \usepackage{hyperref}
-\usepackage{natbib}
 \usepackage{url}
-\usepackage{natbib}
 \usepackage{isorot}
 \usepackage{fullpage} % standard 1 inch margins 
 
