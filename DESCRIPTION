@@ -1,5 +1,5 @@
 Package: LPE
-Version: 1.29.0
+Version: 1.29.1
 Title: Methods for analyzing microarray data using Local Pooled Error (LPE) method
 Author: Nitin Jain <emailnitinjain@gmail.com>,
         Michael O'Connell <michaelo@warath.com>,
@@ -20,3 +20,4 @@ URL: http://www.r-project.org,
      http://www.healthsystem.virginia.edu/internet/hes/biostat/bioinformatics/,
      http://sourceforge.net/projects/r-lpe/
 biocViews: Microarray, Bioinformatics, DifferentialExpression
+Depends: R (>= 2.10)
